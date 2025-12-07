@@ -1,54 +1,82 @@
+#!/usr/bin/env python3
+"""
+common/events.py
 
-"""Common JSON event logging utilities and schema helpers."""
+Central event bus & JSON logger for the honeypot framework.
+All Python modules should use EventPublisher to emit structured events.
+
+Logs:
+  - Main event log: logging/events.jsonl (one JSON per line)
+"""
+
 import json
 import os
-from datetime import datetime, timezone
+import sys
+import threading
+from dataclasses import dataclass, asdict
+from datetime import datetime
 from typing import Any, Dict, Optional
 
-
-LOG_DIR = os.environ.get("ICS_LOG_DIR", "data/logs")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_DIR = os.path.join(BASE_DIR, "logging")
 os.makedirs(LOG_DIR, exist_ok=True)
 
+EVENT_LOG_PATH = os.path.join(LOG_DIR, "events.jsonl")
 
 
+@dataclass
+class Event:
+    timestamp: str
+    source: str
+    event_type: str
+    details: Dict[str, Any]
 
-def utc_now_iso() -> str:
-return datetime.now(timezone.utc).isoformat()
-
-
-
-
-def _open_log(path: str):
-os.makedirs(os.path.dirname(path), exist_ok=True)
-return open(path, "a", encoding="utf-8")
-
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False)
 
 
+class EventPublisher:
+    """
+    Simple thread-safe JSON line logger.
 
-def make_event(
-*,
-source: str,
-dest: str,
-proto: str,
-msg_type: str,
-meta: Optional[Dict[str, Any]] = None,
-payload_hex: Optional[str] = None,
-) -> Dict[str, Any]:
-return {
-"ts": utc_now_iso(),
-"source": source,
-"dest": dest,
-"proto": proto,
-"msg_type": msg_type, # e.g., request|response|read|write|heartbeat
-"payload_hex": payload_hex,
-"meta": meta or {},
-}
+    Optionally, you can add:
+      - Remote log shipping (HTTP, syslog, Kafka) later.
+    """
+
+    _lock = threading.Lock()
+
+    def __init__(self, source: str = "core"):
+        self.source = source
+
+    def emit(self, event_type: str, **details: Any) -> None:
+        evt = Event(
+            timestamp=datetime.utcnow().isoformat() + "Z",
+            source=self.source,
+            event_type=event_type,
+            details=details,
+        )
+        line = evt.to_json()
+        with self._lock:
+            with open(EVENT_LOG_PATH, "a", encoding="utf-8") as f:
+                f.write(line + "\n")
+        # Optional: also to stdout
+        print(line, file=sys.stdout, flush=True)
+
+    def info(self, msg: str, **details: Any) -> None:
+        details.setdefault("message", msg)
+        self.emit("info", **details)
+
+    def warning(self, msg: str, **details: Any) -> None:
+        details.setdefault("message", msg)
+        self.emit("warning", **details)
+
+    def error(self, msg: str, **details: Any) -> None:
+        details.setdefault("message", msg)
+        self.emit("error", **details)
 
 
+# Global default publisher for simple usage
+default_publisher = EventPublisher(source="global")
 
-
-def log_event(event: Dict[str, Any], *, filename: str = "events.jsonl") -> None:
-path = os.path.join(LOG_DIR, filename)
-with _open_log(path) as f:
-f.write(json.dumps(event, ensure_ascii=False) + "
-")
+def emit(event_type: str, **details: Any) -> None:
+    default_publisher.emit(event_type, **details)
