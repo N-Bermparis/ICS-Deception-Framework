@@ -1,0 +1,97 @@
+{
+  "host": "127.0.0.1",
+  "port": 8000,
+  "pcap_dir": "data/pcaps",
+  "max_replay_packets": 5000,
+  "components": {
+    "modbus_python": {
+      "kind": "python",
+      "args": [
+        "-m",
+        "ics_deception.honeypots.modbus_server",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "5020"
+      ],
+      "enabled": false,
+      "autostart": false,
+      "description": "Standard-library Modbus/TCP deception server (FC03/FC06 subset)"
+    },
+    "modbus_native": {
+      "kind": "binary",
+      "command": [
+        "build/modbus_honeypot",
+        "--bind",
+        "127.0.0.1",
+        "--port",
+        "5020",
+        "--log",
+        "runtime/modbus_honeypot.jsonl"
+      ],
+      "enabled": false,
+      "autostart": false,
+      "description": "Native C++ Modbus/TCP honeypot; run 'make build' first"
+    },
+    "dnp3": {
+      "kind": "python",
+      "args": [
+        "-m",
+        "ics_deception.honeypots.dnp3_sensor",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "20000"
+      ],
+      "enabled": false,
+      "autostart": false,
+      "description": "DNP3-inspired interaction sensor (NOT a DNP3 outstation)"
+    },
+    "telnet_decoy": {
+      "kind": "binary",
+      "command": [
+        "build/fake_telnet",
+        "--bind",
+        "127.0.0.1",
+        "--port",
+        "2323",
+        "--log",
+        "runtime/telnet_decoy.jsonl"
+      ],
+      "enabled": false,
+      "autostart": false,
+      "description": "Telnet-style interactive decoy; run 'make build' first"
+    },
+    "ssh_banner_decoy": {
+      "kind": "binary",
+      "command": [
+        "build/fake_ssh",
+        "--bind",
+        "127.0.0.1",
+        "--port",
+        "2222",
+        "--log",
+        "runtime/ssh_banner_decoy.jsonl"
+      ],
+      "enabled": false,
+      "autostart": false,
+      "description": "SSH-banner decoy; performs no SSH key exchange"
+    },
+    "fake_plc": {
+      "kind": "python",
+      "args": [
+        "-m",
+        "ics_deception.iot_nodes.fake_plc",
+        "--target-host",
+        "127.0.0.1",
+        "--target-port",
+        "5020",
+        "--interval",
+        "30"
+      ],
+      "enabled": false,
+      "autostart": false,
+      "description": "Fake PLC node polling the Modbus honeypot with valid FC03 requests"
+    }
+  }
+}
