@@ -1,0 +1,64 @@
+cff-version: 1.2.0
+title: "ICS Deception Framework"
+message: >-
+  If you use this software in your research, please cite it using the
+  metadata below.
+type: software
+authors:
+  - name: "ICS Deception Framework contributors"
+repository-code: "https://github.com/OWNER/ICS-Deception-Framework"
+url: "https://github.com/OWNER/ICS-Deception-Framework"
+abstract: >-
+  A lightweight, distributed Industrial Control System deception and telemetry
+  framework for authorized laboratory research. It provides a Modbus/TCP
+  honeypot, a DNP3-inspired interaction sensor, interactive Telnet and
+  SSH-banner decoys, a fake PLC node for Raspberry Pi class hardware, a
+  loopback-bound FastAPI controller, structured JSONL event logging, and
+  streaming PCAP analysis with controlled replay. An optional post-quantum
+  evidence layer seals honeypot logs with ML-DSA-65 (FIPS 204) signatures
+  over a SHA3-256 hash chain, making modification, deletion, reordering,
+  duplication and replay of recorded events detectable, with optional
+  ML-KEM-768 encrypted offline archives. The protocol services implement
+  deliberately incomplete subsets of their protocols for deception purposes
+  and are not standards-compliant implementations. The evidence layer is a
+  tamper-evident technical mechanism and makes no claim regarding legal
+  chain of custody.
+keywords:
+  - industrial control systems
+  - SCADA
+  - honeypot
+  - deception technology
+  - Modbus
+  - DNP3
+  - IoT security
+  - security research
+  - post-quantum cryptography
+  - ML-DSA
+  - FIPS 204
+  - tamper-evident logging
+license: Apache-2.0
+version: 0.3.0b1
+date-released: "2026-08-05"
+
+references:
+  - type: conference-paper
+    title: "Lightweight IoT Honeypots for ICS Threat Deception & Monitoring"
+    authors:
+      - name: "ICS Deception Framework contributors"
+    conference:
+      name: "FOSSCOMM 2024 (Free and Open Source Software Communities Meeting)"
+    year: 2024
+    notes: >-
+      Conference presentation. Not peer-reviewed; no published proceedings or
+      DOI are available at the time of writing.
+
+  - type: conference-paper
+    title: "Deception-based Security Architecture for ICS Networks using IoT Honeypots"
+    authors:
+      - name: "ICS Deception Framework contributors"
+    conference:
+      name: "ECESCON 2025 (Conference of Greek Electrical and Computer Engineering Students)"
+    year: 2025
+    notes: >-
+      Conference presentation. Not peer-reviewed; no published proceedings or
+      DOI are available at the time of writing.

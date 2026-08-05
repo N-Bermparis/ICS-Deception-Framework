@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ics-deception"
+version = "0.3.0b1"
+description = "Lightweight distributed ICS deception and telemetry framework for authorized laboratory research"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "ICS Deception Framework contributors" }]
+keywords = ["ics", "scada", "honeypot", "deception", "modbus", "dnp3", "security-research"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+pcap = ["scapy>=2.5"]
+# Portable, real post-quantum cryptography. dilithium-py and kyber-py are pure
+# Python FIPS 204 / FIPS 203 implementations that interoperate byte-for-byte
+# with OpenSSL 3.5; 'cryptography' supplies AES-256-GCM for archives.
+pqc = [
+    "dilithium-py>=1.1",
+    "kyber-py>=1.0",
+    "cryptography>=42.0",
+]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+    "ruff>=0.5",
+    "build>=1.0",
+    "scapy>=2.5",
+    "dilithium-py>=1.1",
+    "kyber-py>=1.0",
+    "cryptography>=42.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/OWNER/ICS-Deception-Framework"
+Documentation = "https://github.com/OWNER/ICS-Deception-Framework/blob/main/README.md"
+Issues = "https://github.com/OWNER/ICS-Deception-Framework/issues"
+
+[project.scripts]
+ics-controller = "ics_deception.controller.cli:main"
+ics-modbus-server = "ics_deception.honeypots.modbus_server:main"
+ics-dnp3-sensor = "ics_deception.honeypots.dnp3_sensor:main"
+ics-fake-plc = "ics_deception.iot_nodes.fake_plc:main"
+ics-pcap = "ics_deception.datasets.pcap_loader:main"
+ics-pqc-evidence = "ics_deception.pqc_evidence.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ics_deception*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "C4", "SIM"]
+ignore = [
+    # Long log/banner strings in deception services are intentionally verbatim.
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ics_deception", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["ignore::DeprecationWarning"]
+markers = [
+    "integration: exercises a compiled native binary over real TCP sockets",
+    "pqc: requires a real post-quantum backend (ML-DSA / ML-KEM)",
+]
