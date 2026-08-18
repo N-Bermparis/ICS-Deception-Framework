@@ -283,7 +283,7 @@ fi
 cat > "${HOME}/.config/systemd/user/${SERVICE_NAME}.service" <<UNIT
 [Unit]
 Description=ICS Deception Framework - fake PLC node (research prototype)
-Documentation=https://github.com/OWNER/ICS-Deception-Framework
+Documentation=https://github.com/N-Bermparis/ICS-Deception-Framework
 After=network-online.target
 
 [Service]

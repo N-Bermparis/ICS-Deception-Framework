@@ -152,7 +152,7 @@ plus the fake PLC's current state over a loopback REST API.
 Requires **Python 3.10+**, and `g++` with `make` for the native components.
 
 ```bash
-git clone https://github.com/OWNER/ICS-Deception-Framework.git
+git clone https://github.com/N-Bermparis/ICS-Deception-Framework.git
 ```
 
 ### Virtual environment setup
