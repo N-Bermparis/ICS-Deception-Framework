@@ -6,8 +6,8 @@ message: >-
 type: software
 authors:
   - name: "ICS Deception Framework contributors"
-repository-code: "https://github.com/OWNER/ICS-Deception-Framework"
-url: "https://github.com/OWNER/ICS-Deception-Framework"
+repository-code: "https://github.com/N-Bermparis/ICS-Deception-Framework"
+url: "https://github.com/N-Bermparis/ICS-Deception-Framework"
 abstract: >-
   A lightweight, distributed Industrial Control System deception and telemetry
   framework for authorized laboratory research. It provides a Modbus/TCP

@@ -338,7 +338,7 @@ A near-total rewrite that turns a broken prototype into a runnable, tested resea
 Initial prototype presented at FOSSCOMM 2024 and ECESCON 2025. Several source files did not parse or
 compile; see the *Fixed* section above.
 
-[Unreleased]: https://github.com/OWNER/ICS-Deception-Framework/compare/v0.3.0b1...HEAD
-[0.3.0b1]: https://github.com/OWNER/ICS-Deception-Framework/releases/tag/v0.3.0b1
-[0.3.0a1]: https://github.com/OWNER/ICS-Deception-Framework/releases/tag/v0.3.0a1
-[0.2.0a1]: https://github.com/OWNER/ICS-Deception-Framework/releases/tag/v0.2.0a1
+[Unreleased]: https://github.com/N-Bermparis/ICS-Deception-Framework/compare/v0.3.0b1...HEAD
+[0.3.0b1]: https://github.com/N-Bermparis/ICS-Deception-Framework/releases/tag/v0.3.0b1
+[0.3.0a1]: https://github.com/N-Bermparis/ICS-Deception-Framework/releases/tag/v0.3.0a1
+[0.2.0a1]: https://github.com/N-Bermparis/ICS-Deception-Framework/releases/tag/v0.2.0a1
