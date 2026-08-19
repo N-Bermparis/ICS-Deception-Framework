@@ -50,9 +50,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/OWNER/ICS-Deception-Framework"
-Documentation = "https://github.com/OWNER/ICS-Deception-Framework/blob/main/README.md"
-Issues = "https://github.com/OWNER/ICS-Deception-Framework/issues"
+Homepage = "https://github.com/N-Bermparis/ICS-Deception-Framework"
+Documentation = "https://github.com/N-Bermparis/ICS-Deception-Framework/blob/main/README.md"
+Issues = "https://github.com/N-Bermparis/ICS-Deception-Framework/issues"
 
 [project.scripts]
 ics-controller = "ics_deception.controller.cli:main"
