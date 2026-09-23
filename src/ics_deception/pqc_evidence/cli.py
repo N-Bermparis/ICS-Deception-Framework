@@ -141,6 +141,17 @@ def cmd_capabilities(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 
+def _key_protection_note() -> str:
+    """Describe the on-disk protection actually applied to a new private key.
+
+    POSIX gets a real 0600. Windows has no such mode bit, so reporting
+    "mode 0600" there would promise a protection the filesystem never applied.
+    """
+    if os.name == "nt":
+        return "restrict access via ACLs - NEVER commit or copy this"
+    return "mode 0600 - NEVER commit or copy this"
+
+
 def cmd_generate_key(args: argparse.Namespace) -> int:
     """Generate a node signing key pair."""
     try:
@@ -200,7 +211,7 @@ def cmd_generate_key(args: argparse.Namespace) -> int:
         payload,
         args.json,
         f"generated {args.algorithm} key pair using the {backend.name} backend\n"
-        f"  private key : {private_path} (mode 0600 - NEVER commit or copy this)\n"
+        f"  private key : {private_path} ({_key_protection_note()})\n"
         f"  public key  : {public_path}\n"
         f"  fingerprint : {payload['fingerprint']}",
     )

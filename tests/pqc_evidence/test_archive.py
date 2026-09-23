@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import resource
 import stat
 import zipfile
 
@@ -21,6 +20,11 @@ from ics_deception.pqc_evidence.archive import (
 )
 from ics_deception.pqc_evidence.key_registry import KeyRegistry
 from tests.pqc_evidence.conftest import KEY_ID, NODE_ID
+
+try:  # pragma: no cover - platform dependent
+    import resource
+except ImportError:  # Windows has no resource module
+    resource = None  # type: ignore[assignment]
 
 pytestmark = pytest.mark.pqc
 
@@ -491,6 +495,7 @@ def test_a_decompression_bomb_is_refused(tmp_path, kem_keypair, kem_backend):
     assert excinfo.value.code == "decompression_bomb"
 
 
+@pytest.mark.skipif(resource is None, reason="resource.getrusage is POSIX only")
 def test_a_large_archive_stays_within_a_bounded_memory_target(
     tmp_path, kem_keypair, kem_backend
 ):

@@ -407,7 +407,14 @@ if os.name == "nt":  # pragma: no cover - POSIX is the deployment target
         import msvcrt
 
         handle.seek(0)
-        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        try:
+            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError as exc:
+            # msvcrt reports contention as EACCES, not EWOULDBLOCK. Without
+            # this translation the caller's retry loop treats a lock another
+            # signer merely holds as a hard filesystem error and gives up
+            # immediately instead of waiting out lock_timeout.
+            raise BlockingIOError(str(exc)) from exc
 
     def _unlock(handle: Any) -> None:
         import msvcrt

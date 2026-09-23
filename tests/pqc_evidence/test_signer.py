@@ -168,6 +168,7 @@ def test_sign_log_reports_the_backend_and_whether_it_is_real(signer):
 # -- key files --------------------------------------------------------------
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission semantics")
 def test_written_private_keys_are_owner_only(tmp_path, signing_keypair):
     path = write_private_key(tmp_path / "node.key", signing_keypair)
 

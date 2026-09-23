@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 
 import pytest
 
@@ -126,7 +127,8 @@ def test_generate_key_writes_both_halves(tmp_path, capsys):
 
     assert private.is_file()
     assert (tmp_path / "new.pub").is_file()
-    assert oct(private.stat().st_mode)[-3:] == "600"
+    if os.name != "nt":  # Windows has no POSIX mode bits
+        assert oct(private.stat().st_mode)[-3:] == "600"
 
 
 def test_generate_key_never_prints_the_private_key(tmp_path, capsys, signing_keypair):

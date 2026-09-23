@@ -71,6 +71,9 @@ def test_gitattributes_enforces_lf_in_the_repository():
         assert f"{pattern}" in attributes
 
 
+@pytest.mark.skipif(
+    os.name == "nt", reason="the deployment script requires a POSIX bash"
+)
 def test_the_deployment_script_runs_under_bash_as_checked_out():
     """Whatever the line endings on disk, bash must be able to parse it."""
     result = subprocess.run(

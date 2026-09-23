@@ -25,7 +25,6 @@ import gc
 import json
 import os
 import platform
-import resource
 import statistics
 import sys
 import time
@@ -34,6 +33,11 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+try:  # pragma: no cover - platform dependent
+    import resource
+except ImportError:  # Windows has no resource module
+    resource = None  # type: ignore[assignment]
 
 from ics_deception.pqc_evidence import DEFAULT_SIGNATURE_ALGORITHM, EvidenceError
 from ics_deception.pqc_evidence.crypto_backend import CryptoBackend, select_backend
@@ -52,11 +56,62 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + "Z"
 
 
+def _peak_rss_kib_windows() -> int:  # pragma: no cover - Windows only
+    """Peak working set in KiB, read from psapi.
+
+    Returns 0 if the query fails: a benchmark must never abort because it
+    could not measure memory.
+    """
+    import ctypes
+    from ctypes import wintypes
+
+    class _ProcessMemoryCounters(ctypes.Structure):
+        _fields_ = [
+            ("cb", wintypes.DWORD),
+            ("PageFaultCount", wintypes.DWORD),
+            ("PeakWorkingSetSize", ctypes.c_size_t),
+            ("WorkingSetSize", ctypes.c_size_t),
+            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+            ("PagefileUsage", ctypes.c_size_t),
+            ("PeakPagefileUsage", ctypes.c_size_t),
+        ]
+
+    counters = _ProcessMemoryCounters()
+    counters.cb = ctypes.sizeof(counters)
+    try:
+        kernel32 = ctypes.windll.kernel32
+        # Without an explicit restype the pseudo-handle is truncated to a
+        # 32-bit int and every subsequent call fails.
+        kernel32.GetCurrentProcess.restype = ctypes.c_void_p
+        handle = kernel32.GetCurrentProcess()
+        try:
+            query = ctypes.windll.psapi.GetProcessMemoryInfo
+        except (AttributeError, OSError):  # psapi is forwarded to kernel32
+            query = kernel32.K32GetProcessMemoryInfo
+        query.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(_ProcessMemoryCounters),
+            wintypes.DWORD,
+        ]
+        query.restype = wintypes.BOOL
+        ok = query(handle, ctypes.byref(counters), counters.cb)
+    except (AttributeError, OSError):
+        return 0
+    return counters.PeakWorkingSetSize // 1024 if ok else 0
+
+
 def _peak_rss_kib() -> int:
     """Peak resident set size in KiB.
 
     ``ru_maxrss`` is KiB on Linux but bytes on macOS; normalise to KiB.
+    Windows has no ``resource`` module, so read the peak working set from
+    psapi instead.
     """
+    if resource is None:  # pragma: no cover - Windows only
+        return _peak_rss_kib_windows()
     usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     return usage // 1024 if sys.platform == "darwin" else usage
 
