@@ -45,6 +45,8 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
+          - "3.14"
 
     steps:
       - name: Checkout
@@ -65,6 +67,37 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev,pqc]"
 
+      - name: Run tests
+        run: python -m pytest
+
+  windows:
+    name: Windows Python ${{ matrix.python-version }}
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.11"
+          - "3.14"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,pqc]"
+
+      # The native components, the deployment script and POSIX mode bits are
+      # out of scope here: the suite skips them. Everything else must pass, so
+      # that a Unix-only import or an untranslated lock error cannot come back.
       - name: Run tests
         run: python -m pytest
 

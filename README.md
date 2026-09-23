@@ -110,7 +110,7 @@ plus the fake PLC's current state over a loopback REST API.
 
 ```
 .
-├── .github/workflows/ci.yml        # Python 3.12 CI: compileall, ruff, C++ build, pytest, bash -n
+├── .github/workflows/ci.yml        # CI: compileall, ruff, C++ build, pytest, bash -n
 ├── config/
 │   └── controller.example.json     # Example controller config (all components disabled)
 ├── data/
