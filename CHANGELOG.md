@@ -8,7 +8,31 @@ breaking changes in any minor version.
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- **`ics-pqc-evidence benchmark` no longer aborts on a non-POSIX host.** `benchmark.py` imported
+  the Unix-only `resource` module at module scope, so the command died with `ModuleNotFoundError`
+  before doing any work. The import is now guarded, and peak RSS falls back to psapi's
+  `PeakWorkingSetSize`.
+- **A contended evidence-state lock no longer fails instantly on Windows.** `msvcrt.locking`
+  reports contention as `EACCES`, not `EWOULDBLOCK`, so `_lock_exclusive` treated a lock another
+  signer merely held as a hard filesystem error and gave up rather than retrying until
+  `lock_timeout` expired. `evidence_store.py` already performed this translation; the two lock
+  implementations now agree.
+- **`generate-key` no longer reports a protection it did not apply.** The output claimed
+  `mode 0600` on every platform, including those where `chmod` cannot set it. It now states what
+  the platform actually did.
+- **The test suite runs on Windows.** `tests/pqc_evidence/test_archive.py` failed collection on
+  its `resource` import and took the entire suite down with it. Tests that assert POSIX mode bits
+  or need a POSIX `bash` now carry the same `skipif` guards the rest of the suite already used.
+
+### Added
+
+- Python 3.13 and 3.14 to the CI matrix and the package classifiers. Both already ran the suite
+  unmodified; only the declared support lagged.
+- A Windows CI job running the Python suite, so a Unix-only import or an untranslated lock error
+  cannot be reintroduced unnoticed. The native components, the deployment script and POSIX mode
+  bits remain POSIX-tested.
 
 ## [0.3.0b1] - 2026-08-06
 
