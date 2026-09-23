@@ -234,7 +234,7 @@ def load_config(path: str | Path | None) -> ControllerConfig:
         return default_config()
     try:
         raw = json.loads(config_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ConfigError(f"cannot read controller config {config_path}: {exc}") from exc
     try:
         return ControllerConfig.model_validate(raw)

@@ -288,7 +288,7 @@ def create_app(
             )
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise HTTPException(
                 status_code=503, detail=f"PLC state unreadable: {exc}"
             ) from exc

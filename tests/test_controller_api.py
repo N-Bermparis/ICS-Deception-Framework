@@ -145,6 +145,17 @@ def test_ics_values_reports_503_for_unreadable_state(client, runtime_dir):
     assert client.get("/ics-values").status_code == 503
 
 
+def test_ics_values_reports_503_for_state_that_is_not_valid_utf8(client, runtime_dir):
+    """Invalid UTF-8 is unreadable state, not a crash.
+
+    UnicodeDecodeError is a ValueError but not a JSONDecodeError, so catching
+    only the latter let it escape as an unhandled 500.
+    """
+    plc_state_path().write_bytes(b'{"registers": "' + bytes([0xFF, 0xFE]) + b'"}')
+
+    assert client.get("/ics-values").status_code == 503
+
+
 # -- component control ------------------------------------------------------
 
 
@@ -307,6 +318,15 @@ def test_load_config_falls_back_to_defaults_for_a_missing_file(tmp_path):
 def test_load_config_rejects_malformed_json(tmp_path):
     path = tmp_path / "controller.json"
     path.write_text("{ not json", encoding="utf-8")
+
+    with pytest.raises(ConfigError):
+        load_config(path)
+
+
+def test_load_config_rejects_a_file_that_is_not_valid_utf8(tmp_path):
+    """A hostile config must raise ConfigError, not a raw decode error."""
+    path = tmp_path / "controller.json"
+    path.write_bytes(b'{"host": "' + bytes([0xFF, 0xFE]) + b'127.0.0.1"}')
 
     with pytest.raises(ConfigError):
         load_config(path)

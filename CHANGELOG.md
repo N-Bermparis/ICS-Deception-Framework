@@ -22,6 +22,14 @@ breaking changes in any minor version.
 - **`generate-key` no longer reports a protection it did not apply.** The output claimed
   `mode 0600` on every platform, including those where `chmod` cannot set it. It now states what
   the platform actually did.
+- **A capture-corrupted PLC state file no longer returns 500.** `GET /ics-values` documents 503
+  for unreadable state and caught `json.JSONDecodeError`, but `UnicodeDecodeError` is a sibling
+  under `ValueError`, not a subclass, so a state file containing invalid UTF-8 escaped as an
+  unhandled 500. `load_config` had the same gap, which contradicted its own contract that a
+  "malformed or hostile file is rejected with a clear error": it raised a raw `UnicodeDecodeError`
+  instead of `ConfigError`. The `pqc_evidence` package already caught this exception on every
+  `read_text`; the controller now matches it. Both carry regression tests that fail against the
+  previous implementation.
 - **The test suite runs on Windows.** `tests/pqc_evidence/test_archive.py` failed collection on
   its `resource` import and took the entire suite down with it. Tests that assert POSIX mode bits
   or need a POSIX `bash` now carry the same `skipif` guards the rest of the suite already used.
